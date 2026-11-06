@@ -1,0 +1,667 @@
+import json
+import flet as ft
+userresults = {
+    "firstname": "",
+    "lastname": "",
+    "gender": "",
+    "orientation": "",
+    "hobby": "",
+    "age": "",
+    "ie": "",
+    "ns": "",
+    "ftt": "",
+    "pj": "",
+}
+
+
+def main(page: ft.Page):
+    page.title = "Dating App"
+    page.padding = 20
+    page.bgcolor = ft.Colors.TRANSPARENT
+    page.decoration = ft.BoxDecoration(
+        image = ft.DecorationImage(
+            src="background.png",
+            fit= ft.BoxFit.FILL,
+        )
+    )
+    #add a background
+    def register_page():
+        page.controls.clear()
+        page.floating_action_button = None
+        greeting = ft.Text(value="Please register for a new account", size=22, weight=ft.FontWeight.BOLD)
+        username = ft.TextField(label="Name", hint_text="Please enter your user name")
+        password = ft.TextField(label="Password", password=True, can_reveal_password=True)
+        passwordconfirm = ft.TextField(label="Confirm your Password", password=True, can_reveal_password=True)
+        feedback = ft.Text(size=16, color="red")
+        def register_click(e):
+            if password.value == passwordconfirm.value and password.value != "":
+                data: dict = {}
+                with open('data.json', 'r') as f:
+                    data = json.load(f)
+                    data[username.value] = {"password": password.value}
+                with open('data.json', 'w') as f:
+                    json.dump(data, f)
+                    #write the register information into data file
+                userresults["username"] = username.value
+                main_page()
+            else:
+                feedback.value = ("Passwords do not match")
+                #if the password is wrong, try again
+                page.update()
+
+
+        def menu(e):
+            menu_page()
+
+
+        page.floating_action_button = ft.FloatingActionButton("Menu", on_click=menu)
+        Register = ft.Button(content="Register", on_click=register_click)
+        cardcontent = ft.Card(
+            content=ft.Container(
+                padding=25,
+                content=ft.Column(
+                    controls=[
+                        greeting,
+                        ft.Divider(),
+                        #add a line
+                        username,
+                        password,
+                        passwordconfirm,
+                        feedback,
+                        Register,
+                    ],
+                    spacing=15,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+            ),
+            width=400,
+        )
+        page.add(
+            ft.Container(
+                expand=True,
+                content=cardcontent,
+                alignment=ft.Alignment.CENTER,
+            )
+        )
+        page.update()
+        #the menu control register and logn page
+
+
+    def main_page():
+        page.controls.clear()
+        page.floating_action_button = None
+        greeting = ft.Text(value="Hello, welcome to the Dating App!", size=22, weight=ft.FontWeight.BOLD)
+        username = ft.TextField(label="Name", hint_text="Please enter your user name")
+        password = ft.TextField(label="Password", password=True, can_reveal_password=True)
+        feedback = ft.Text(size=16, color="red")
+        def submit_click(e):
+            data = {}
+            with open("data.json", 'r') as f:
+                data = json.load(f)
+            if (username.value in data and data[username.value]["password"] == password.value):
+                print("Login successfully")
+                userresults["username"] = username.value
+                all_questions_page()
+            else:
+                feedback.value = ("Something wrong. Try again! Or create a new account.")
+                page.update()
+            #make sure the login information are same with the information in file
+        def menu(e):
+            menu_page()
+            #if the user want, come back to menu
+        page.floating_action_button = ft.FloatingActionButton( "Menu", on_click=menu)
+        Login = ft.Button(content="Login", on_click=submit_click)
+        cardcontent = ft.Card(
+            #I add a card method to make it looks better
+            content=ft.Container(
+                padding=25,
+                content=ft.Column(
+                    controls=[
+                        greeting,
+                        ft.Divider(),
+                        #add a line to make it looks better
+                        username,
+                        password,
+                        feedback,
+                        Login,
+                    ],
+                    spacing=15,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+            ),
+            width=400,
+        )
+        page.add(
+            ft.Container(
+                expand=True,
+                content=cardcontent,
+                alignment=ft.Alignment.CENTER,
+            )
+        )
+        page.update()
+        #clean the page
+    def menu_page():
+        page.controls.clear()
+        page.floating_action_button = None
+        greeting = ft.Text(value="Where do you wanna go?", size=22, weight=ft.FontWeight.BOLD)
+
+
+        def register_click(e):
+            register_page()
+
+
+        def login_click(e):
+            main_page()
+        login = ft.Button(content="Login", on_click=login_click)
+        register = ft.Button(content="Register", on_click=register_click)
+        content = ft.Card(
+            content=ft.Container(
+                padding=30,
+                content=ft.Column(
+                    controls=[
+                        greeting,
+                        ft.Divider(),
+                        login,
+                        register,
+                    ],
+                    spacing=20,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+            ),
+            width=350,
+        )
+        page.add(
+            ft.Container(
+                expand=True,
+                content=content,
+                alignment=ft.Alignment.CENTER,
+            )
+        )
+        page.update()
+    def all_questions_page():
+        #this is question part
+        page.controls.clear()
+        page.floating_action_button = None
+        gendergroup = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="she"),
+                ft.Radio(value="2", label="he"),
+            ])
+        )
+        orientationgroup = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="woman"),
+                ft.Radio(value="2", label="man"),
+                ft.Radio(value="3", label="all"),
+            ])
+        )
+        hobbygroup = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="Gaming", label="Gaming / Movies"),
+                ft.Radio(value="Sports", label="Sports / Fitness"),
+                ft.Radio(value="Art", label="Arts / Music / Reading"),
+            ])
+        )
+        age = ft.TextField(label="Age", hint_text="Please enter your age")
+        firstname = ft.TextField(label="first name", hint_text="Please enter your first name")
+        lastname = ft.TextField(label="last name", hint_text="Please enter your last name")
+        iegroup1 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Tired"),
+                ft.Radio(value="2", label="Happy"),
+            ])
+        )
+        iegroup2 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Yes"),
+                ft.Radio(value="2", label="No"),
+            ])
+        )
+        iegroup3 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Communicating with others"),
+                ft.Radio(value="2", label="Thinking alone"),
+            ])
+        )
+
+
+        nsgroup1 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="what happened"),
+                ft.Radio(value="2", label="The feeling in your mind"),
+            ])
+        )
+        nsgroup2 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="An exact ending"),
+                ft.Radio(value="2", label="An opening ending"),
+            ])
+        )
+        nsgroup3 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="The practicality"),
+                ft.Radio(value="2", label="The meaning"),
+            ])
+        )
+        ftgroup1 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Think of ways to help them"),
+                ft.Radio(value="2", label="Comfort them."),
+            ])
+        )
+        ftgroup2 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="calm and rational people"),
+                ft.Radio(value="2", label="empathetic people"),
+            ])
+        )
+        ftgroup3 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Logic"),
+                ft.Radio(value="2", label="Emotion"),
+            ])
+        )
+        pjgroup1 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Making plan ahead"),
+                ft.Radio(value="2", label="Do whatever you want"),
+            ])
+        )
+        pjgroup2 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="The plan was suddenly changed"),
+                ft.Radio(
+                    value="2", label="Everything is going according to plan."
+                ),
+            ])
+        )
+        pjgroup3 = ft.RadioGroup(
+            content=ft.Column([
+                ft.Radio(value="1", label="Do something every day"),
+                ft.Radio(
+                    value="2", label="I can make a miracle on the last day"
+                ),
+            ])
+        )
+        feedback = ft.Text(size=16, color="red")
+        def submit_all_answers(e):
+            if (gendergroup.value == None or orientationgroup.value == None or hobbygroup.value == None or age.value == "" or firstname.value == "" or lastname.value == ""):
+                feedback.value = ("Please finish all the questions!")
+                #if the user doesn't answer all questions, can't go to the next page.
+                page.update()
+                return
+                #go back
+            i= 0
+            ee= 0
+            for g in [iegroup1]:
+                if g.value == "1":
+                    i += 1
+                elif g.value == "2":
+                    ee += 1
+            for g in [iegroup2]:
+                if g.value == "1":
+                    i += 1
+                elif g.value == "2":
+                    ee += 1
+            for g in [iegroup3]:
+                if g.value == "1":
+                    i += 1
+                elif g.value == "2":
+                    ee += 1
+            userresults["ie"] = "i" if i > ee else "e"
+            #use the score to judge i or e
+
+
+            n, s = 0, 0
+            for g in [nsgroup1]:
+                if g.value == "1":
+                    n += 1
+                elif g.value == "2":
+                    s += 1
+            for g in [nsgroup2]:
+                if g.value == "1":
+                    n += 1
+                elif g.value == "2":
+                    s += 1
+            for g in [nsgroup3]:
+                if g.value == "1":
+                    n += 1
+                elif g.value == "2":
+                    s += 1                    
+            userresults["ns"] = "n" if n > s else "s"
+#use the score to judge n or s
+            f, t = 0, 0
+            for g in [ftgroup1]:
+                if g.value == "1":
+                    f += 1
+                elif g.value == "2":
+                    t += 1
+            for g in [ftgroup2]:
+                if g.value == "1":
+                    f += 1
+                elif g.value == "2":
+                    t += 1
+            for g in [ftgroup3]:
+                if g.value == "1":
+                    f += 1
+                elif g.value == "2":
+                    t += 1                                        
+            userresults["ftt"] = "f" if f > t else "t"
+#use the score to judge s or t
+
+
+            p, j = 0, 0
+            for g in [pjgroup1]:
+                if g.value == "1":
+                    p += 1
+                elif g.value == "2":
+                    j += 1
+            for g in [pjgroup2]:
+                if g.value == "1":
+                    p += 1
+                elif g.value == "2":
+                    j += 1
+            for g in [pjgroup3]:
+                if g.value == "1":
+                    p += 1
+                elif g.value == "2":
+                    j += 1
+             #use the score to judge p or j                                            
+            userresults["pj"] = "p" if p > j else "j"
+            userresults["firstname"] = firstname.value
+            userresults["lastname"] = lastname.value
+            userresults["gender"] = gendergroup.value
+            userresults["orientation"] = orientationgroup.value
+            userresults["hobby"] = hobbygroup.value
+            userresults["age"] = age.value
+#put these information into the dictionary
+
+
+            mbti = f"{userresults['ie']}{userresults['ns']}{userresults['ftt']}{userresults['pj']}"
+            #get the user's mbti
+            data = {}
+            with open("data.json", "r") as f:
+                data = json.load(f)
+#write these information into the file
+            aaa = userresults["username"]
+            data[aaa]["firstname"] = userresults["firstname"]
+            data[aaa]["lastname"] = userresults["lastname"]
+            data[aaa]["gender"] = userresults["gender"]
+            data[aaa]["orientation"] = userresults["orientation"]
+            data[aaa]["hobby"] = userresults["hobby"]
+            data[aaa]["age"] = userresults["age"]
+            data[aaa]["mbti"] = mbti
+            with open("data.json", "w") as f:
+                json.dump(data, f)
+#put these information into the jason file
+            match_page()
+        basiccard = ft.Card(
+            content=ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Basic Info", size=20, weight=ft.FontWeight.BOLD, color="green"),
+                    ft.Divider(),
+#put a line to make it looks better
+                    ft.Text("How should I address you", size=16, weight=ft.FontWeight.BOLD),
+                    gendergroup,
+                    ft.Text("What is your sexual orientation?", size=16, weight=ft.FontWeight.BOLD),
+                    orientationgroup,
+                    ft.Text("What is your favorite hobby?", size=16, weight=ft.FontWeight.BOLD),
+                    hobbygroup,
+                    age,
+                    firstname,
+                    lastname,
+                ], spacing=10)
+            )#ask basic questions
+        )
+        iecard = ft.Card(
+            content=ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Part 1: Personality", size=20, weight=ft.FontWeight.BOLD, color="green"),
+                    ft.Divider(),
+                    ft.Text("Communicate with others make you feel tired or happy", size=16, weight=ft.FontWeight.BOLD),
+                    iegroup1,
+                    ft.Text("Do you like spending your free time with others?", size=16, weight=ft.FontWeight.BOLD),
+                    iegroup2,
+                    ft.Text("If you have a question, what do you like:", size=16, weight=ft.FontWeight.BOLD),
+                    iegroup3,
+                ], spacing=10)
+            )
+        )
+        nscard = ft.Card(
+            content=ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Part 2: Information", size=20, weight=ft.FontWeight.BOLD, color="green"),
+                    ft.Divider(),
+                    ft.Text("For you, it's easier to remember:", size=16, weight=ft.FontWeight.BOLD),
+                    nsgroup1,
+                    ft.Text("When you watch a movie, what type of ending do you like?", size=16, weight=ft.FontWeight.BOLD),
+                    nsgroup2,
+                    ft.Text("What do you focus more in your life:", size=16, weight=ft.FontWeight.BOLD),
+                    nsgroup3,
+                ], spacing=10)
+            )
+        )
+        ftcard = ft.Card(
+            content=ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Part 3: Decision", size=20, weight=ft.FontWeight.BOLD, color="green"),
+                    ft.Divider(),
+                    ft.Text("If your friends is troubled, you will", size=16, weight=ft.FontWeight.BOLD),
+                    ftgroup1,
+                    ft.Text("What do you wanna be", size=16, weight=ft.FontWeight.BOLD),
+                    ftgroup2,
+                    ft.Text("You will pay more attention on which one", size=16, weight=ft.FontWeight.BOLD),
+                    ftgroup3,
+                ], spacing=10)
+            )
+        )
+
+
+
+
+        pjcard = ft.Card(
+            content=ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Part 4: Lifestyle", size=20, weight=ft.FontWeight.BOLD, color="green"),
+                    ft.Divider(),
+                    ft.Text("Which one do you prefer:", size=16, weight=ft.FontWeight.BOLD),
+                    pjgroup1,
+                    ft.Text("Which one do you hate more:", size=16, weight=ft.FontWeight.BOLD),
+                    pjgroup2,
+                    ft.Text("Your homework has deadline, you will", size=16, weight=ft.FontWeight.BOLD),
+                    pjgroup3,
+                ], spacing=10)
+            )
+        )
+#these are the  questions
+
+
+        questionscolumn = ft.Column(
+            scroll=ft.ScrollMode.AUTO,
+            #add the scroll method
+            expand=True,
+            spacing=15,
+            controls=[
+                ft.Text("Questionnaire", size=24, weight=ft.FontWeight.BOLD),
+                basiccard,
+                iecard,
+                nscard,
+                ftcard,
+                pjcard,
+                feedback,
+                ft.Container(
+                    content=ft.Button(content="Submit All", on_click=submit_all_answers),
+                    alignment=ft.Alignment.CENTER,
+                    padding=10
+                )
+            ],
+        )
+#put all questions in one oage
+
+
+        page.add(ft.Container(padding=10, expand=True, content=questionscolumn))
+        page.update()
+    def match_page():
+        page.controls.clear()
+        page.floating_action_button = None
+        data = {}
+        with open("data.json", "r") as f:
+            data = json.load(f)
+        uname = userresults["username"]
+        mydata = data[uname]
+        mymbti = mydata["mbti"]
+        myage = mydata["age"]
+
+
+        bestone = {}
+        highestscore = -1
+
+
+        for othername in data:
+            if othername == userresults["username"]:
+                continue
+            uinfo = data[othername]
+            if "mbti" not in uinfo or "age" not in uinfo:
+                continue
+            mygender = mydata["gender"] if "gender" in mydata else ""
+            myorientation = (mydata["orientation"] if "orientation" in mydata else "")
+            othergender = uinfo["gender"] if "gender" in uinfo else ""
+            otherorientation = (uinfo["orientation"] if "orientation" in uinfo else "")\
+            #make sure the data people have right gender and orientation
+
+
+            if myorientation == "1" and othergender != "1":
+                continue
+            if myorientation == "2" and othergender != "2":
+                continue
+            if otherorientation == "1" and mygender != "1":
+                continue
+            if otherorientation == "2" and mygender != "2":
+                continue
+
+            score = 0
+            othermbti = uinfo["mbti"]
+            otherage = uinfo["age"]
+            #if one of mbti are same, +20 score
+
+
+            comparelen = min(len(mymbti), len(othermbti))
+            for i in range(comparelen):
+                if mymbti[i] == othermbti[i]:
+                    score += 20
+
+
+            myhobby = mydata["hobby"] if "hobby" in mydata else ""
+            otherhobby = uinfo["hobby"] if "hobby" in uinfo else ""
+            if myhobby != "" and myhobby == otherhobby:
+                score += 20
+                #if they have same hobby,+20
+
+            myagenum = int(myage)
+            otheragenum = int(otherage)
+#change the str to int, and cauculate
+            if myagenum >= otheragenum:
+                agedifference = myagenum - otheragenum
+            else:
+                agedifference = otheragenum - myagenum
+
+            if agedifference <= 5:
+                score += 20
+#if their age different<=5, get more score
+
+
+            if score > highestscore:
+                highestscore = score
+                bestone = uinfo
+
+
+        if highestscore != -1:
+            otherhobbydisplay = bestone["hobby"] if "hobby" in bestone else "N/A"
+            resultui = ft.Card(
+                #add card method
+                content=ft.Container(
+                    padding=20,
+                    content=ft.Column([
+                        ft.Text(f"Match Score: {highestscore}%",
+                            #show the score
+                            size=20,
+                            color="green",
+                            weight=ft.FontWeight.BOLD
+                        ),
+                        ft.Divider(),
+                        ft.Text(f"Name: {bestone['firstname']} {bestone['lastname']}", size=16
+                            #find the best one
+                        ),
+                        ft.Text(f"Age: {bestone['age']}", size=16),
+                        ft.Text(f"Hobby: {otherhobbydisplay}", size=16),
+                        ft.Text(f"MBTI: {bestone['mbti']}", size=16),
+                    ], spacing=8),
+                ),
+                width=400
+            )
+        else:
+            resultui = ft.Text(
+                "No other users available for matching yet. Register another account to test!",
+                #if there is no one is good, say it
+                color="grey",
+                size=16
+            )
+
+
+        def back_menu(e):
+            menu_page()
+
+
+        controls = [
+            ft.Text(f"Hello, {mydata['firstname']}!", size=24, weight=ft.FontWeight.BOLD),
+            ft.Text(f"Your MBTI: {mymbti}", size=18, color="blue"),
+            ft.Text("Your Best Date Match:", size=18),
+            resultui,
+            ft.Button(content="Back to Menu", on_click=back_menu),
+        ]
+        page.add(
+            ft.Container(
+                expand=True,
+                content=ft.Column(
+                    controls=controls,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=15
+                ),
+                alignment=ft.Alignment.CENTER,
+            )
+        )
+        page.update()
+    menu_page()
+    #begin with menu page. user can choose different page.start with register oage or login page
+
+
+
+
+ft.run(main)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
+
+
+
